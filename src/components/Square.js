@@ -1,6 +1,14 @@
 import React from "react";
 import styled from "styled-components";
 
+/**
+ * Renders a square component.
+ *
+ * @param {number} value - The value of the square.
+ * @param {boolean} disabled - Indicates if the square is disabled.
+ * @param {function} onClick - Function to handle click events on the square.
+ * @return {JSX.Element} The rendered square component.
+ */
 export default function Square({ value, disabled, onClick }) {
     return (
         <Button disabled={disabled} onClick={onClick}>

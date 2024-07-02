@@ -1,10 +1,27 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-
 import Square from "./Square";
 
 export default function Board({ winner, blocked, currPlayer, onClick }) {
     const [squares, setSquares] = useState(new Array(9).fill(null));
+
+    function handleClickOnSquare(s) {
+        if (squares[s] || winner || blocked) return;
+        const newSquares = squares.slice();
+        newSquares[s] = currPlayer;
+        setSquares(newSquares);
+        onClick(newSquares, s);
+    }
+
+    function renderSquare(s) {
+        return (
+            <Square
+                key={s}
+                value={squares[s]}
+                onClick={() => handleClickOnSquare(s)}
+            />
+        );
+    }
 
     return (
         <Container>
@@ -12,40 +29,16 @@ export default function Board({ winner, blocked, currPlayer, onClick }) {
             <Row>{[3, 4, 5].map((s) => renderSquare(s))}</Row>
             <Row>{[6, 7, 8].map((s) => renderSquare(s))}</Row>
             {blocked || winner ? (
-                <OverlayedContainer winner={winner}>
+                <OverlayedContainer $winner={winner}>
                     {winner}
                 </OverlayedContainer>
             ) : null}
         </Container>
     );
-
-    function renderSquare(s) {
-        return (
-            <Square
-                key={s}
-                value={squares[s]}
-                disabled={squares[s] || winner}
-                onClick={() => {
-                    handleClickOnSquare(s);
-                }}
-            />
-        );
-    }
-
-    function handleClickOnSquare(s) {
-        setSquares(() => {
-            const newSquares = squares.slice();
-            newSquares[s] = currPlayer;
-
-            onClick(newSquares, s);
-
-            return newSquares;
-        });
-    }
 }
 
 const Container = styled("div")`
-    position: relative; /* pois é pai de OverlayedContainer */
+    position: relative;
     margin: 3px;
 `;
 const Row = styled("div")`
@@ -55,10 +48,8 @@ const OverlayedContainer = styled("button").attrs({ disabled: true })`
     position: absolute;
     top: 0;
     left: 0;
-
     color: black;
     border: 1px solid #bbb5;
-
     text-align: center;
     font-size: 160px;
     font-weight: 700;
@@ -76,7 +67,7 @@ const OverlayedContainer = styled("button").attrs({ disabled: true })`
         opacity: 1;
         cursor: default;
         background-color: ${(props) =>
-            props.winner
+            props.$winner
                 ? "rgba(255, 255, 255, 1)"
                 : "rgba(255, 255, 255, 0.8)"};
     }
