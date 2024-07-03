@@ -1,21 +1,19 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import styled from "styled-components";
-import { v4 as uuidv4 } from "uuid"; // Used to generate unique room IDs
+import {v4 as uuidv4} from "uuid"; // Used to generate unique room IDs
 
-export default function WelcomeScreen({ onStart }) {
-    const [player, setPlayer] = useState(null);
-    const [roomId, setRoomId] = useState("");
+export default function WelcomeScreen({onStart}) {
+  const [player, setPlayer] = useState(null);
+  const [roomId, setRoomId] = useState("");
 
-    const handlePlayerSelect = (selectedPlayer) => {
-        setPlayer(selectedPlayer);
-    };
+  const handlePlayerSelect = (selectedPlayer) => { setPlayer(selectedPlayer); };
 
-    const handleStartGame = () => {
-        if (player) {
-            const room = roomId || uuidv4(); // Generate a room ID if not provided
-            onStart(player, room);
-        }
-    };
+  const handleStartGame = () => {
+    if (player) {
+      const room = roomId || uuidv4(); // Generate a room ID if not provided
+      onStart(player, room);
+    }
+  };
 
     return (
         <Container>

@@ -1,22 +1,21 @@
 import React from "react";
 import styled from "styled-components";
 
-export default function GameEndModal({ show, winner, onPlayAgain }) {
-    if (!show) return null;
+export default function GameEndModal({show, winner, onPlayAgain}) {
+  if (!show)
+    return null;
 
-    return (
-        <Overlay>
-            <ModalContainer>
-                <Message>{winner} won!</Message>
+  return (
+      <Overlay><ModalContainer><Message>{winner} won!
+      </Message>
                 <PlayAgainButton onClick={onPlayAgain}>
                     Play Again
                 </PlayAgainButton>
-            </ModalContainer>
-        </Overlay>
-    );
+      </ModalContainer>
+        </Overlay>);
 }
 
-const Overlay = styled("div")`
+const Overlay = styled("div") `
     position: fixed;
     top: 0;
     left: 0;
@@ -28,7 +27,7 @@ const Overlay = styled("div")`
     align-items: center;
 `;
 
-const ModalContainer = styled("div")`
+const ModalContainer = styled("div") `
     background: white;
     padding: 20px;
     border-radius: 8px;
@@ -36,11 +35,11 @@ const ModalContainer = styled("div")`
     text-align: center;
 `;
 
-const Message = styled("h2")`
+const Message = styled("h2") `
     margin-bottom: 20px;
 `;
 
-const PlayAgainButton = styled("button")`
+const PlayAgainButton = styled("button") `
     background: #007bff;
     color: white;
     border: none;

@@ -2,13 +2,14 @@ import React from "react";
 import styled from "styled-components";
 
 export default function Board({
-    squares,
-    currPlayer,
-    onClick,
-    blocked,
-    winner,
+  squares,
+  currPlayer,
+  onClick,
+  blocked,
+  winner,
 }) {
-    const renderSquare = (i) => {
+  const renderSquare =
+      (i) => {
         const isUnlockedAndUnmarked =
             (blocked === null || i === blocked) && !squares[i];
 
@@ -40,9 +41,9 @@ export default function Board({
             {Array.from({ length: 9 }, (_, i) => renderSquare(i))}
         </BoardContainer>
     );
-}
+      }
 
-const BoardContainer = styled("div")`
+  const BoardContainer = styled("div") `
     display: grid;
     grid-template-columns: repeat(3, 50px); /* Adjust size of each square */
     grid-template-rows: repeat(3, 50px); /* Adjust size of each square */
@@ -51,23 +52,21 @@ const BoardContainer = styled("div")`
     border: 2px solid #333; /* Border around the entire board */
 `;
 
-const Square = styled("button")`
+  const Square = styled("button") `
     width: 100%; /* Ensure squares take up entire space */
     height: 100%; /* Ensure squares take up entire space */
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 1.5rem;
-    background: ${(props) =>
-        props.value === "X"
-            ? "#007bff"
-            : props.value === "O"
-            ? "#28a745"
-            : "#fff"}; /* Custom color for X and O */
-    color: ${(props) =>
-        props.value === "X" || props.value === "O"
-            ? "#fff"
-            : "#000"}; /* Text color */
+    background: ${
+      (props) => props.value === "X"   ? "#007bff"
+                 : props.value === "O" ? "#28a745"
+                                       : "#fff"}; /* Custom color for X and O */
+    color: ${
+      (props) => props.value === "X" || props.value === "O"
+                     ? "#fff"
+                     : "#000"}; /* Text color */
     border: 2px solid transparent; /* Default border */
     outline: none;
     cursor: pointer;
@@ -78,8 +77,8 @@ const Square = styled("button")`
     }
 
     &:hover {
-        background: ${(props) =>
-            props.disabled ? "#ccc" : "#f0f0f0"}; /* Hover effect */
+        background: ${
+      (props) => props.disabled ? "#ccc" : "#f0f0f0"}; /* Hover effect */
     }
 
     &::after {
@@ -90,12 +89,16 @@ const Square = styled("button")`
         right: 0;
         bottom: 0;
         border: 2px solid
-            ${(props) => (props.unlocked ? "#ffc107" : "transparent")}; /* Highlight unlocked and unmarked squares */
+            ${
+      (props) =>
+          (props.unlocked
+               ? "#ffc107"
+               : "transparent")}; /* Highlight unlocked and unmarked squares */
         pointer-events: none; /* Ensure clicks go through the overlay */
     }
 `;
 
-const Winner = styled("div")`
+  const Winner = styled("div") `
     width: 100%;
     height: 100%;
     display: flex;

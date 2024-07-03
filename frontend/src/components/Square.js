@@ -9,7 +9,7 @@ import styled from "styled-components";
  * @param {function} onClick - Function to handle click events on the square.
  * @return {JSX.Element} The rendered square component.
  */
-export default function Square({ value, disabled, onClick }) {
+export default function Square({value, disabled, onClick}) {
     return (
         <Button disabled={disabled} onClick={onClick}>
             {value}
