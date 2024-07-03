@@ -12,8 +12,9 @@ export default function Game({ player }) {
         boards: Array(9)
             .fill(null)
             .map(() => Array(9).fill(null)),
+        boardWinners: Array(9).fill(null),
         currPlayer: "X",
-        winner: null,
+        overallWinner: null,
         unlockedBoard: null,
     });
 
@@ -28,7 +29,7 @@ export default function Game({ player }) {
     }, []);
 
     const handleClickOnSquare = (boardIndex, squareIndex) => {
-        if (gameState.winner || gameState.currPlayer !== player) return;
+        if (gameState.overallWinner || gameState.currPlayer !== player) return;
 
         socket.emit("move", { player, boardIndex, squareIndex });
     };
@@ -44,17 +45,19 @@ export default function Game({ player }) {
             onClick={(s) => handleClickOnSquare(b, s)}
             squares={gameState.boards[b]}
             blocked={
-                b !== gameState.unlockedBoard &&
-                gameState.unlockedBoard !== null
+                (b !== gameState.unlockedBoard &&
+                    gameState.unlockedBoard !== null) ||
+                gameState.boardWinners[b]
             }
+            winner={gameState.boardWinners[b]}
         />
     );
 
     return (
         <>
             <Label>
-                {gameState.winner
-                    ? `${gameState.winner} won!`
+                {gameState.overallWinner
+                    ? `${gameState.overallWinner} won the game!`
                     : `${gameState.currPlayer}'s turn`}
             </Label>
             <Container>
@@ -63,8 +66,8 @@ export default function Game({ player }) {
                 <Row>{[6, 7, 8].map((b) => renderBoard(b))}</Row>
             </Container>
             <GameEndModal
-                show={!!gameState.winner}
-                winner={gameState.winner}
+                show={!!gameState.overallWinner}
+                winner={gameState.overallWinner}
                 onPlayAgain={handlePlayAgain}
             />
         </>

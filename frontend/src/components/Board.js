@@ -1,7 +1,13 @@
 import React from "react";
 import styled from "styled-components";
 
-export default function Board({ squares, currPlayer, onClick, blocked }) {
+export default function Board({
+    squares,
+    currPlayer,
+    onClick,
+    blocked,
+    winner,
+}) {
     const renderSquare = (i) => (
         <Square
             key={i}
@@ -12,6 +18,14 @@ export default function Board({ squares, currPlayer, onClick, blocked }) {
             {squares[i]}
         </Square>
     );
+
+    if (winner) {
+        return (
+            <BoardContainer>
+                <Winner>{winner}</Winner>
+            </BoardContainer>
+        );
+    }
 
     return (
         <BoardContainer>
@@ -34,4 +48,15 @@ const Square = styled("button")`
     justify-content: center;
     align-items: center;
     font-size: 1.5rem;
+`;
+
+const Winner = styled("div")`
+    width: 150px;
+    height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3rem;
+    font-weight: bold;
+    color: #f00;
 `;
