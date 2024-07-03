@@ -8,19 +8,24 @@ export default function Board({
     blocked,
     winner,
 }) {
-    const renderSquare = (i) => (
-        <Square
-            key={i}
-            onClick={() => onClick(i)}
-            value={squares[i]}
-            disabled={blocked || squares[i]}
-            currPlayer={currPlayer}
-            unlocked={blocked === null || i === blocked}
-            winner={winner}
-        >
-            {squares[i]}
-        </Square>
-    );
+    const renderSquare = (i) => {
+        const isUnlockedAndUnmarked =
+            (blocked === null || i === blocked) && !squares[i];
+
+        return (
+            <Square
+                key={i}
+                onClick={() => onClick(i)}
+                value={squares[i]}
+                disabled={blocked || squares[i]}
+                currPlayer={currPlayer}
+                unlocked={isUnlockedAndUnmarked}
+                winner={winner}
+            >
+                {squares[i]}
+            </Square>
+        );
+    };
 
     if (winner) {
         return (
@@ -85,7 +90,7 @@ const Square = styled("button")`
         right: 0;
         bottom: 0;
         border: 2px solid
-            ${(props) => (props.unlocked ? "#ffc107" : "transparent")}; /* Highlight unlocked squares */
+            ${(props) => (props.unlocked ? "#ffc107" : "transparent")}; /* Highlight unlocked and unmarked squares */
         pointer-events: none; /* Ensure clicks go through the overlay */
     }
 `;
