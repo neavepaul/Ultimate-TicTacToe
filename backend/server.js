@@ -1,10 +1,18 @@
 const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
+const cors = require("cors");
 
 const app = express();
+app.use(cors()); // Enable CORS for all routes
+
 const server = http.createServer(app);
-const io = socketIo(server);
+const io = socketIo(server, {
+    cors: {
+        origin: "http://localhost:3000", // Allow requests from this origin
+        methods: ["GET", "POST"],
+    },
+});
 
 const PORT = process.env.PORT || 4000;
 

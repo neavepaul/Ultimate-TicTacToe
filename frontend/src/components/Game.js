@@ -4,13 +4,14 @@ import io from "socket.io-client";
 import Board from "./Board";
 import GameEndModal from "./GameEndModal";
 
-const socket = io("http://localhost:4000"); // Update with your server address
+const socket = io("http://localhost:4000");
 
-export default function Game(props) {
+export default function Game({ player }) {
     const [boards, setBoards] = useState(new Array(9).fill(null));
     const [currPlayer, setCurrPlayer] = useState("X");
     const [winner, setWinner] = useState(null);
     const [unlockedBoard, setUnlockedBoard] = useState(null);
+    const [gameKey, setGameKey] = useState(0); // Add gameKey state
 
     useEffect(() => {
         const roomId = "room1"; // Example room ID
@@ -29,7 +30,8 @@ export default function Game(props) {
     }, []);
 
     function handleClickOnBoard(b, squares, s) {
-        if (winner) return;
+        if (winner || currPlayer !== player) return;
+
         const roomId = "room1"; // Example room ID
         socket.emit("move", roomId, b, squares, s);
     }
@@ -37,16 +39,18 @@ export default function Game(props) {
     function handlePlayAgain() {
         const roomId = "room1"; // Example room ID
         socket.emit("playAgain", roomId);
+        setGameKey((prevKey) => prevKey + 1); // Update gameKey to force re-render
     }
 
     function renderBoard(b) {
         return (
             <Board
-                key={b}
+                key={`${gameKey}-${b}`} // Use gameKey to force re-render
                 currPlayer={currPlayer}
                 onClick={(squares, s) => handleClickOnBoard(b, squares, s)}
                 winner={boards[b]}
                 blocked={b !== unlockedBoard && unlockedBoard !== null}
+                player={player}
             />
         );
     }

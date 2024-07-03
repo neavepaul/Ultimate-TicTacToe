@@ -1,12 +1,22 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 import Game from "./Game";
+import WelcomeScreen from "./WelcomeScreen";
 
 export default function App(props) {
+    const [player, setPlayer] = useState(null);
+
+    const handleStartGame = (selectedPlayer) => {
+        setPlayer(selectedPlayer);
+    };
     return (
         <Container>
-            <Game />
+            {player ? (
+                <Game player={player} />
+            ) : (
+                <WelcomeScreen onStart={handleStartGame} />
+            )}
         </Container>
     );
 }
