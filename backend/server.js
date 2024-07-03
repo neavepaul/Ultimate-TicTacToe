@@ -12,7 +12,9 @@ const io = socketIo(server, {
 });
 
 const gameState = {
-    boards: new Array(9).fill(null),
+    boards: Array(9)
+        .fill(null)
+        .map(() => Array(9).fill(null)), // Nested arrays to represent squares within each board
     currPlayer: "X",
     winner: null,
     unlockedBoard: null,
@@ -29,19 +31,26 @@ io.on("connection", (socket) => {
             return;
         }
 
-        const { boardIndex, squares, squareIndex } = data;
-        gameState.boards[boardIndex] = squares;
-        gameState.currPlayer = gameState.currPlayer === "X" ? "O" : "X";
-        gameState.winner = checkWinner(gameState.boards);
-        gameState.unlockedBoard = gameState.boards[squareIndex]
-            ? null
-            : squareIndex;
+        const { boardIndex, squareIndex } = data;
 
-        io.emit("gameState", gameState);
+        if (!gameState.boards[boardIndex][squareIndex]) {
+            gameState.boards[boardIndex][squareIndex] = data.player;
+            gameState.currPlayer = gameState.currPlayer === "X" ? "O" : "X";
+            gameState.winner = checkWinner(gameState.boards);
+            gameState.unlockedBoard = gameState.boards[squareIndex].some(
+                (sq) => sq == null
+            )
+                ? squareIndex
+                : null;
+
+            io.emit("gameState", gameState);
+        }
     });
 
     socket.on("resetGame", () => {
-        gameState.boards = new Array(9).fill(null);
+        gameState.boards = Array(9)
+            .fill(null)
+            .map(() => Array(9).fill(null));
         gameState.currPlayer = "X";
         gameState.winner = null;
         gameState.unlockedBoard = null;
@@ -66,14 +75,13 @@ function checkWinner(boards) {
         [2, 4, 6],
     ];
     for (const [a, b, c] of winPossibilities) {
-        if (
-            (boards[a] === "X" || boards[a] === "O") &&
-            boards[a] === boards[b] &&
-            boards[a] === boards[c]
-        )
-            return boards[a];
+        for (let board of boards) {
+            if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+                return board[a];
+            }
+        }
     }
-    if (boards.every((s) => s != null)) return "#";
+    if (boards.every((board) => board.every((sq) => sq != null))) return "#";
     return null;
 }
 

@@ -9,7 +9,9 @@ const socket = io("http://localhost:4000");
 
 export default function Game({ player }) {
     const [gameState, setGameState] = useState({
-        boards: new Array(9).fill(null),
+        boards: Array(9)
+            .fill(null)
+            .map(() => Array(9).fill(null)),
         currPlayer: "X",
         winner: null,
         unlockedBoard: null,
@@ -25,10 +27,10 @@ export default function Game({ player }) {
         };
     }, []);
 
-    const handleClickOnBoard = (boardIndex, squares, squareIndex) => {
+    const handleClickOnSquare = (boardIndex, squareIndex) => {
         if (gameState.winner || gameState.currPlayer !== player) return;
 
-        socket.emit("move", { player, boardIndex, squares, squareIndex });
+        socket.emit("move", { player, boardIndex, squareIndex });
     };
 
     const handlePlayAgain = () => {
@@ -39,8 +41,8 @@ export default function Game({ player }) {
         <Board
             key={b}
             currPlayer={gameState.currPlayer}
-            onClick={(squares, s) => handleClickOnBoard(b, squares, s)}
-            winner={gameState.boards[b]}
+            onClick={(s) => handleClickOnSquare(b, s)}
+            squares={gameState.boards[b]}
             blocked={
                 b !== gameState.unlockedBoard &&
                 gameState.unlockedBoard !== null
