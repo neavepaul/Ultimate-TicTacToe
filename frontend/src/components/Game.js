@@ -31,7 +31,12 @@ export default function Game({ player }) {
     const handleClickOnSquare = (boardIndex, squareIndex) => {
         if (gameState.overallWinner || gameState.currPlayer !== player) return;
 
-        socket.emit("move", { player, boardIndex, squareIndex });
+        if (
+            gameState.unlockedBoard === null ||
+            gameState.unlockedBoard === boardIndex
+        ) {
+            socket.emit("move", { player, boardIndex, squareIndex });
+        }
     };
 
     const handlePlayAgain = () => {

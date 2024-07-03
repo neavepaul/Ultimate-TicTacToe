@@ -50,11 +50,15 @@ io.on("connection", (socket) => {
                 );
             }
 
-            gameState.unlockedBoard = gameState.boards[squareIndex].some(
-                (sq) => sq == null
-            )
-                ? squareIndex
-                : null;
+            // Check if the target board is won or full
+            if (
+                gameState.boards[squareIndex].every((sq) => sq !== null) ||
+                gameState.boardWinners[squareIndex]
+            ) {
+                gameState.unlockedBoard = null;
+            } else {
+                gameState.unlockedBoard = squareIndex;
+            }
 
             io.emit("gameState", gameState);
         }
