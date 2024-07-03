@@ -1,79 +1,60 @@
 const express = require("express");
 const http = require("http");
 const socketIo = require("socket.io");
-const cors = require("cors");
 
 const app = express();
-app.use(cors()); // Enable CORS for all routes
-
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
-        origin: "http://localhost:3000", // Allow requests from this origin
+        origin: "http://localhost:3000",
         methods: ["GET", "POST"],
     },
 });
 
-const PORT = process.env.PORT || 4000;
-
-let games = {};
+const gameState = {
+    boards: new Array(9).fill(null),
+    currPlayer: "X",
+    winner: null,
+    unlockedBoard: null,
+};
 
 io.on("connection", (socket) => {
-    console.log("New client connected");
+    console.log("a user connected");
 
-    socket.on("createGame", (roomId) => {
-        games[roomId] = {
-            boards: new Array(9).fill(null),
-            currPlayer: "X",
-            winner: null,
-            unlockedBoard: null,
-        };
-        socket.join(roomId);
-        socket.emit("gameState", games[roomId]);
-    });
+    // Send the current game state to the newly connected client
+    socket.emit("gameState", gameState);
 
-    socket.on("joinGame", (roomId) => {
-        socket.join(roomId);
-        if (games[roomId]) {
-            socket.emit("gameState", games[roomId]);
+    socket.on("move", (data) => {
+        if (gameState.currPlayer !== data.player) {
+            return;
         }
+
+        const { boardIndex, squares, squareIndex } = data;
+        gameState.boards[boardIndex] = squares;
+        gameState.currPlayer = gameState.currPlayer === "X" ? "O" : "X";
+        gameState.winner = checkWinner(gameState.boards);
+        gameState.unlockedBoard = gameState.boards[squareIndex]
+            ? null
+            : squareIndex;
+
+        io.emit("gameState", gameState);
     });
 
-    socket.on("move", (roomId, b, squares, s) => {
-        const game = games[roomId];
-        if (!game || game.winner) return;
+    socket.on("resetGame", () => {
+        gameState.boards = new Array(9).fill(null);
+        gameState.currPlayer = "X";
+        gameState.winner = null;
+        gameState.unlockedBoard = null;
 
-        const newBoards = game.boards.slice();
-        newBoards[b] = checkWinner(squares);
-
-        game.currPlayer = game.currPlayer === "X" ? "O" : "X";
-        game.winner = checkWinner(newBoards);
-        game.unlockedBoard = newBoards[s] ? null : s;
-        game.boards = newBoards;
-
-        io.to(roomId).emit("gameState", game);
-    });
-
-    socket.on("playAgain", (roomId) => {
-        if (games[roomId]) {
-            games[roomId] = {
-                boards: new Array(9).fill(null),
-                currPlayer: "X",
-                winner: null,
-                unlockedBoard: null,
-            };
-            io.to(roomId).emit("gameState", games[roomId]);
-        }
+        io.emit("gameState", gameState);
     });
 
     socket.on("disconnect", () => {
-        console.log("Client disconnected");
+        console.log("user disconnected");
     });
 });
 
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-function checkWinner(squares) {
+function checkWinner(boards) {
     const winPossibilities = [
         [0, 1, 2],
         [3, 4, 5],
@@ -86,12 +67,16 @@ function checkWinner(squares) {
     ];
     for (const [a, b, c] of winPossibilities) {
         if (
-            (squares[a] === "X" || squares[a] === "O") &&
-            squares[a] === squares[b] &&
-            squares[a] === squares[c]
+            (boards[a] === "X" || boards[a] === "O") &&
+            boards[a] === boards[b] &&
+            boards[a] === boards[c]
         )
-            return squares[a];
+            return boards[a];
     }
-    if (squares.every((s) => s != null)) return "#";
+    if (boards.every((s) => s != null)) return "#";
     return null;
 }
+
+server.listen(4000, () => {
+    console.log("listening on *:4000");
+});

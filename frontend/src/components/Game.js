@@ -1,27 +1,23 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import io from "socket.io-client";
+
 import Board from "./Board";
 import GameEndModal from "./GameEndModal";
 
 const socket = io("http://localhost:4000");
 
 export default function Game({ player }) {
-    const [boards, setBoards] = useState(new Array(9).fill(null));
-    const [currPlayer, setCurrPlayer] = useState("X");
-    const [winner, setWinner] = useState(null);
-    const [unlockedBoard, setUnlockedBoard] = useState(null);
-    const [gameKey, setGameKey] = useState(0); // Add gameKey state
+    const [gameState, setGameState] = useState({
+        boards: new Array(9).fill(null),
+        currPlayer: "X",
+        winner: null,
+        unlockedBoard: null,
+    });
 
     useEffect(() => {
-        const roomId = "room1"; // Example room ID
-        socket.emit("createGame", roomId);
-
-        socket.on("gameState", (game) => {
-            setBoards(game.boards);
-            setCurrPlayer(game.currPlayer);
-            setWinner(game.winner);
-            setUnlockedBoard(game.unlockedBoard);
+        socket.on("gameState", (state) => {
+            setGameState(state);
         });
 
         return () => {
@@ -29,43 +25,44 @@ export default function Game({ player }) {
         };
     }, []);
 
-    function handleClickOnBoard(b, squares, s) {
-        if (winner || currPlayer !== player) return;
+    const handleClickOnBoard = (boardIndex, squares, squareIndex) => {
+        if (gameState.winner || gameState.currPlayer !== player) return;
 
-        const roomId = "room1"; // Example room ID
-        socket.emit("move", roomId, b, squares, s);
-    }
+        socket.emit("move", { player, boardIndex, squares, squareIndex });
+    };
 
-    function handlePlayAgain() {
-        const roomId = "room1"; // Example room ID
-        socket.emit("playAgain", roomId);
-        setGameKey((prevKey) => prevKey + 1); // Update gameKey to force re-render
-    }
+    const handlePlayAgain = () => {
+        socket.emit("resetGame");
+    };
 
-    function renderBoard(b) {
-        return (
-            <Board
-                key={`${gameKey}-${b}`} // Use gameKey to force re-render
-                currPlayer={currPlayer}
-                onClick={(squares, s) => handleClickOnBoard(b, squares, s)}
-                winner={boards[b]}
-                blocked={b !== unlockedBoard && unlockedBoard !== null}
-                player={player}
-            />
-        );
-    }
+    const renderBoard = (b) => (
+        <Board
+            key={b}
+            currPlayer={gameState.currPlayer}
+            onClick={(squares, s) => handleClickOnBoard(b, squares, s)}
+            winner={gameState.boards[b]}
+            blocked={
+                b !== gameState.unlockedBoard &&
+                gameState.unlockedBoard !== null
+            }
+        />
+    );
 
     return (
         <>
-            <Label>{winner ? `${winner} won!` : `${currPlayer}'s turn`}</Label>
+            <Label>
+                {gameState.winner
+                    ? `${gameState.winner} won!`
+                    : `${gameState.currPlayer}'s turn`}
+            </Label>
             <Container>
                 <Row>{[0, 1, 2].map((b) => renderBoard(b))}</Row>
                 <Row>{[3, 4, 5].map((b) => renderBoard(b))}</Row>
                 <Row>{[6, 7, 8].map((b) => renderBoard(b))}</Row>
             </Container>
             <GameEndModal
-                show={!!winner}
-                winner={winner}
+                show={!!gameState.winner}
+                winner={gameState.winner}
                 onPlayAgain={handlePlayAgain}
             />
         </>

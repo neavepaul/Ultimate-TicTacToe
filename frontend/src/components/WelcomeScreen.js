@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import styled from "styled-components";
+import { v4 as uuidv4 } from "uuid"; // Used to generate unique room IDs
 
 export default function WelcomeScreen({ onStart }) {
     const [player, setPlayer] = useState(null);
+    const [roomId, setRoomId] = useState("");
 
     const handlePlayerSelect = (selectedPlayer) => {
         setPlayer(selectedPlayer);
@@ -10,7 +12,8 @@ export default function WelcomeScreen({ onStart }) {
 
     const handleStartGame = () => {
         if (player) {
-            onStart(player);
+            const room = roomId || uuidv4(); // Generate a room ID if not provided
+            onStart(player, room);
         }
     };
 
@@ -32,6 +35,12 @@ export default function WelcomeScreen({ onStart }) {
                     O
                 </PlayerButton>
             </PlayerSelect>
+            <RoomInput
+                type="text"
+                placeholder="Enter room ID"
+                value={roomId}
+                onChange={(e) => setRoomId(e.target.value)}
+            />
             <StartButton onClick={handleStartGame} disabled={!player}>
                 Start Game
             </StartButton>
@@ -75,6 +84,13 @@ const PlayerButton = styled.button`
         background: #0056b3;
         color: #fff;
     }
+`;
+
+const RoomInput = styled.input`
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #007bff;
+    border-radius: 4px;
 `;
 
 const StartButton = styled.button`
