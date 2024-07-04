@@ -4,18 +4,18 @@ import PlayerSelect from "./PlayerSelect";
 import Game from "./Game";
 
 export default function App() {
-    const [player, setPlayer] = useState(null);
+    const [playerInfo, setPlayerInfo] = useState(null);
 
-    const handleSelectPlayer = (selectedPlayer) => {
-        setPlayer(selectedPlayer);
+    const handlePlayerSelect = (info) => {
+        setPlayerInfo(info);
     };
 
     return (
         <Container>
-            {player ? (
-                <Game player={player} />
+            {!playerInfo ? (
+                <PlayerSelect onPlayerSelect={handlePlayerSelect} />
             ) : (
-                <PlayerSelect onSelectPlayer={handleSelectPlayer} />
+                <Game player={playerInfo.player} roomID={playerInfo.roomID} />
             )}
         </Container>
     );

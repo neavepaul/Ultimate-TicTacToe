@@ -11,6 +11,8 @@ const io = socketIo(server, {
     },
 });
 
+const rooms = {}; // Track rooms and player roles
+
 const gameState = {
     boards: Array(9)
         .fill(null)
@@ -26,6 +28,29 @@ io.on("connection", (socket) => {
 
     // Send the current game state to the newly connected client
     socket.emit("gameState", gameState);
+
+    socket.on("createRoom", (roomID) => {
+        rooms[roomID] = { X: null, O: null };
+        socket.join(roomID);
+    });
+
+    socket.on("joinRoom", (roomID) => {
+        if (rooms[roomID]) {
+            const availableRole = Object.keys(rooms[roomID]).find(
+                (key) => rooms[roomID][key] === null
+            );
+            console.log(`Player ${availableRole} joined room ${roomID}`);
+            rooms[roomID][availableRole] = socket.id;
+            socket.emit("roleAssignment", { role: availableRole });
+            socket.join(roomID);
+        }
+    });
+
+    socket.on("selectRole", ({ roomID, player }) => {
+        if (rooms[roomID]) {
+            rooms[roomID][player] = socket.id;
+        }
+    });
 
     socket.on("move", (data) => {
         if (gameState.currPlayer !== data.player || gameState.overallWinner) {
@@ -78,6 +103,7 @@ io.on("connection", (socket) => {
 
     socket.on("disconnect", () => {
         console.log("user disconnected");
+        // Add logic to handle user disconnection and update room state if necessary
     });
 });
 
