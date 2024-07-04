@@ -9,6 +9,8 @@ export default function PlayerSelect({ onPlayerSelect }) {
     const [roomID, setRoomID] = useState("");
     const [generatedRoomID, setGeneratedRoomID] = useState("");
     const [role, setRole] = useState(null);
+    const [playerName, setPlayerName] = useState("");
+    const [opponentName, setOpponentName] = useState("");
 
     const handleCreateRoom = () => {
         const newRoomID = generateRoomID();
@@ -20,14 +22,14 @@ export default function PlayerSelect({ onPlayerSelect }) {
     const handleJoinRoom = () => {
         socket.emit("joinRoom", roomID);
         socket.on("roleAssignment", ({ role }) => {
-            onPlayerSelect({ roomID, player: role });
+            onPlayerSelect({ roomID, player: role, playerName });
         });
     };
 
     const handleSelectRole = (player) => {
         setRole(player);
         socket.emit("selectRole", { roomID: generatedRoomID, player });
-        onPlayerSelect({ roomID: generatedRoomID, player });
+        onPlayerSelect({ roomID: generatedRoomID, player, playerName });
     };
 
     const generateRoomID = () => {
@@ -50,6 +52,12 @@ export default function PlayerSelect({ onPlayerSelect }) {
                         Room ID: <strong>{generatedRoomID}</strong> (copy this
                         to share with your opponent)
                     </p>
+                    <Input
+                        type="text"
+                        placeholder="Your Name"
+                        value={playerName}
+                        onChange={(e) => setPlayerName(e.target.value)}
+                    />
                     <div>
                         <Button onClick={() => handleSelectRole("X")}>
                             Play as X
@@ -67,6 +75,12 @@ export default function PlayerSelect({ onPlayerSelect }) {
                         placeholder="Enter Room ID"
                         value={roomID}
                         onChange={(e) => setRoomID(e.target.value)}
+                    />
+                    <Input
+                        type="text"
+                        placeholder="Your Name"
+                        value={playerName}
+                        onChange={(e) => setPlayerName(e.target.value)}
                     />
                     <Button onClick={handleJoinRoom}>Join Room</Button>
                 </div>

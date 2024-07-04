@@ -21,6 +21,10 @@ const gameState = {
     currPlayer: "X",
     overallWinner: null,
     unlockedBoard: null,
+    players: {
+        X: { name: "", isTurn: false },
+        O: { name: "", isTurn: false },
+    },
 };
 
 io.on("connection", (socket) => {
@@ -49,6 +53,9 @@ io.on("connection", (socket) => {
     socket.on("selectRole", ({ roomID, player }) => {
         if (rooms[roomID]) {
             rooms[roomID][player] = socket.id;
+            gameState.players[player].name = player;
+            gameState.players[player].isTurn = player === gameState.currPlayer;
+            io.to(roomID).emit("gameState", gameState);
         }
     });
 
@@ -85,6 +92,7 @@ io.on("connection", (socket) => {
                 gameState.unlockedBoard = squareIndex;
             }
 
+            updatePlayerTurns();
             io.emit("gameState", gameState);
         }
     });
@@ -97,6 +105,8 @@ io.on("connection", (socket) => {
         gameState.currPlayer = "X";
         gameState.overallWinner = null;
         gameState.unlockedBoard = null;
+        gameState.players.X = { name: "", isTurn: true };
+        gameState.players.O = { name: "", isTurn: false };
 
         io.emit("gameState", gameState);
     });
@@ -105,6 +115,11 @@ io.on("connection", (socket) => {
         console.log("user disconnected");
         // Add logic to handle user disconnection and update room state if necessary
     });
+
+    function updatePlayerTurns() {
+        gameState.players.X.isTurn = gameState.currPlayer === "X";
+        gameState.players.O.isTurn = gameState.currPlayer === "O";
+    }
 });
 
 function checkMiniBoardWinner(board) {
