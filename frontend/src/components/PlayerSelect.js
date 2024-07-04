@@ -1,40 +1,40 @@
-import React, { useState } from "react";
-import styled from "styled-components";
+import React, {useState} from "react";
 import io from "socket.io-client";
+import styled from "styled-components";
 
 const socket = io("http://localhost:4000");
 
-export default function PlayerSelect({ onPlayerSelect }) {
-    const [mode, setMode] = useState(null);
-    const [roomID, setRoomID] = useState("");
-    const [generatedRoomID, setGeneratedRoomID] = useState("");
-    const [role, setRole] = useState(null);
-    const [playerName, setPlayerName] = useState("");
-    const [opponentName, setOpponentName] = useState("");
+export default function PlayerSelect({onPlayerSelect}) {
+  const [mode, setMode] = useState(null);
+  const [roomID, setRoomID] = useState("");
+  const [generatedRoomID, setGeneratedRoomID] = useState("");
+  const [role, setRole] = useState(null);
+  const [playerName, setPlayerName] = useState("");
+  const [opponentName, setOpponentName] = useState("");
 
-    const handleCreateRoom = () => {
-        const newRoomID = generateRoomID();
-        setGeneratedRoomID(newRoomID);
-        socket.emit("createRoom", newRoomID);
-        setMode("create");
-    };
+  const handleCreateRoom = () => {
+    const newRoomID = generateRoomID();
+    setGeneratedRoomID(newRoomID);
+    socket.emit("createRoom", newRoomID);
+    setMode("create");
+  };
 
-    const handleJoinRoom = () => {
-        socket.emit("joinRoom", roomID);
-        socket.on("roleAssignment", ({ role }) => {
-            onPlayerSelect({ roomID, player: role, playerName });
-        });
-    };
+  const handleJoinRoom = () => {
+    socket.emit("joinRoom", roomID);
+    socket.on(
+        "roleAssignment",
+        ({role}) => { onPlayerSelect({roomID, player : role, playerName}); });
+  };
 
-    const handleSelectRole = (player) => {
-        setRole(player);
-        socket.emit("selectRole", { roomID: generatedRoomID, player });
-        onPlayerSelect({ roomID: generatedRoomID, player, playerName });
-    };
+  const handleSelectRole = (player) => {
+    setRole(player);
+    socket.emit("selectRole", {roomID : generatedRoomID, player});
+    onPlayerSelect({roomID : generatedRoomID, player, playerName});
+  };
 
-    const generateRoomID = () => {
-        return Math.random().toString(36).substring(7); // Generate a random room ID
-    };
+  const generateRoomID = () => {
+    return Math.random().toString(36).substring(7); // Generate a random room ID
+  };
 
     return (
         <Container>
@@ -71,10 +71,11 @@ export default function PlayerSelect({ onPlayerSelect }) {
             {mode === "join" && (
                 <div>
                     <Input
-                        type="text"
-                        placeholder="Enter Room ID"
+    type = "text"
+    placeholder = "Enter Room ID"
                         value={roomID}
-                        onChange={(e) => setRoomID(e.target.value)}
+                        onChange={
+    (e) => setRoomID(e.target.value)}
                     />
                     <Input
                         type="text"

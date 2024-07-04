@@ -1,19 +1,19 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import styled from "styled-components";
-import PlayerSelect from "./PlayerSelect";
+
 import Game from "./Game";
+import PlayerSelect from "./PlayerSelect";
 
 export default function App() {
-    const [playerInfo, setPlayerInfo] = useState(null);
+  const [playerInfo, setPlayerInfo] = useState(null);
 
-    const handlePlayerSelect = (info) => {
-        setPlayerInfo(info);
-    };
+  const handlePlayerSelect = (info) => { setPlayerInfo(info); };
 
     return (
         <Container>
             {!playerInfo ? (
-                <PlayerSelect onPlayerSelect={handlePlayerSelect} />
+                <PlayerSelect onPlayerSelect={
+    handlePlayerSelect} />
             ) : (
                 <Game player={playerInfo.player} roomID={playerInfo.roomID} />
             )}
