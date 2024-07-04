@@ -16,6 +16,10 @@ export default function Game({ player }) {
         currPlayer: "X",
         overallWinner: null,
         unlockedBoard: null,
+        players: {
+            X: { name: "", isTurn: true },
+            O: { name: "", isTurn: false },
+        },
     });
 
     useEffect(() => {
@@ -29,7 +33,8 @@ export default function Game({ player }) {
     }, []);
 
     const handleClickOnSquare = (boardIndex, squareIndex) => {
-        if (gameState.overallWinner || gameState.currPlayer !== player) return;
+        if (gameState.overallWinner || !gameState.players[player].isTurn)
+            return;
 
         if (
             gameState.unlockedBoard === null ||
@@ -65,6 +70,21 @@ export default function Game({ player }) {
                     ? `${gameState.overallWinner} won the game!`
                     : `${gameState.currPlayer}'s turn`}
             </Label>
+            <Players>
+                <Player
+                    isTurn={gameState.players.X.isTurn}
+                    className={gameState.players.X.isTurn ? "highlight" : ""}
+                >
+                    {gameState.players.X.name} (X)
+                </Player>
+
+                <Player
+                    isTurn={gameState.players.O.isTurn}
+                    className={gameState.players.O.isTurn ? "highlight" : ""}
+                >
+                    {gameState.players.O.name} (O)
+                </Player>
+            </Players>
             <Container>
                 <Row>{[0, 1, 2].map((b) => renderBoard(b))}</Row>
                 <Row>{[3, 4, 5].map((b) => renderBoard(b))}</Row>
@@ -82,7 +102,24 @@ export default function Game({ player }) {
 const Label = styled("h1")`
     text-align: center;
 `;
+
+const Players = styled("div")`
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+`;
+
+const Player = styled("div")`
+    margin: 0 10px;
+    font-weight: ${(props) => (props.isTurn ? "bold" : "normal")};
+
+    &.highlight {
+        border-bottom: 2px solid blue;
+    }
+`;
+
 const Container = styled("div")``;
+
 const Row = styled("div")`
     display: flex;
 `;

@@ -11,6 +11,8 @@ const io = socketIo(server, {
     },
 });
 
+const rooms = {}; // Track rooms and player roles
+
 const gameState = {
     boards: Array(9)
         .fill(null)
@@ -19,6 +21,10 @@ const gameState = {
     currPlayer: "X",
     overallWinner: null,
     unlockedBoard: null,
+    players: {
+        X: { name: "", isTurn: false },
+        O: { name: "", isTurn: false },
+    },
 };
 
 io.on("connection", (socket) => {
@@ -26,6 +32,32 @@ io.on("connection", (socket) => {
 
     // Send the current game state to the newly connected client
     socket.emit("gameState", gameState);
+
+    socket.on("createRoom", (roomID) => {
+        rooms[roomID] = { X: null, O: null };
+        socket.join(roomID);
+    });
+
+    socket.on("joinRoom", (roomID) => {
+        if (rooms[roomID]) {
+            const availableRole = Object.keys(rooms[roomID]).find(
+                (key) => rooms[roomID][key] === null
+            );
+            console.log(`Player ${availableRole} joined room ${roomID}`);
+            rooms[roomID][availableRole] = socket.id;
+            socket.emit("roleAssignment", { role: availableRole });
+            socket.join(roomID);
+        }
+    });
+
+    socket.on("selectRole", ({ roomID, player }) => {
+        if (rooms[roomID]) {
+            rooms[roomID][player] = socket.id;
+            gameState.players[player].name = player;
+            gameState.players[player].isTurn = player === gameState.currPlayer;
+            io.to(roomID).emit("gameState", gameState);
+        }
+    });
 
     socket.on("move", (data) => {
         if (gameState.currPlayer !== data.player || gameState.overallWinner) {
@@ -60,6 +92,7 @@ io.on("connection", (socket) => {
                 gameState.unlockedBoard = squareIndex;
             }
 
+            updatePlayerTurns();
             io.emit("gameState", gameState);
         }
     });
@@ -72,13 +105,21 @@ io.on("connection", (socket) => {
         gameState.currPlayer = "X";
         gameState.overallWinner = null;
         gameState.unlockedBoard = null;
+        gameState.players.X = { name: "", isTurn: true };
+        gameState.players.O = { name: "", isTurn: false };
 
         io.emit("gameState", gameState);
     });
 
     socket.on("disconnect", () => {
         console.log("user disconnected");
+        // Add logic to handle user disconnection and update room state if necessary
     });
+
+    function updatePlayerTurns() {
+        gameState.players.X.isTurn = gameState.currPlayer === "X";
+        gameState.players.O.isTurn = gameState.currPlayer === "O";
+    }
 });
 
 function checkMiniBoardWinner(board) {
